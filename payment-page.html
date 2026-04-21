@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mobile 付款流程 Prototype</title>
+  <style>
+    :root {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans TC", sans-serif;
+      color: #111827;
+      background: #f3f4f6;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: #f3f4f6;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .mobile-frame {
+      width: 100%;
+      max-width: 420px;
+      background: #ffffff;
+      border-radius: 18px;
+      box-shadow: 0 10px 30px rgba(17, 24, 39, 0.1);
+      overflow: hidden;
+      min-height: 90vh;
+      position: relative;
+    }
+
+    .banner {
+      height: 90px;
+      background: linear-gradient(135deg, #2563eb, #0ea5e9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+
+    .page {
+      display: none;
+      padding-bottom: 96px;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    .content {
+      padding: 16px;
+    }
+
+    .store-name {
+      font-size: 18px;
+      font-weight: 700;
+      margin: 4px 0 14px;
+    }
+
+    .order-card {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 14px;
+    }
+
+    .order-item {
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+      margin: 6px 0;
+      gap: 12px;
+    }
+
+    .order-item span:last-child {
+      font-weight: 600;
+      text-align: right;
+    }
+
+    .field {
+      margin-bottom: 14px;
+    }
+
+    .label {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 6px;
+      color: #374151;
+    }
+
+    input,
+    textarea {
+      width: 100%;
+      border: 1px solid #d1d5db;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 15px;
+      color: #111827;
+      background: #ffffff;
+    }
+
+    textarea {
+      min-height: 88px;
+      resize: vertical;
+    }
+
+    input:focus,
+    textarea:focus {
+      border-color: #2563eb;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14);
+    }
+
+    .radio-group {
+      display: grid;
+      gap: 8px;
+    }
+
+    .radio-option {
+      display: flex;
+      align-items: center;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 14px;
+      gap: 10px;
+      background: #ffffff;
+    }
+
+    .radio-option input {
+      width: auto;
+      margin: 0;
+    }
+
+    .bottom-action {
+      position: absolute;
+      bottom: 54px;
+      left: 0;
+      right: 0;
+      padding: 0 16px;
+    }
+
+    button {
+      width: 100%;
+      border: 0;
+      border-radius: 12px;
+      padding: 13px;
+      font-size: 16px;
+      font-weight: 700;
+      color: #ffffff;
+      background: #2563eb;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #1d4ed8;
+    }
+
+    .helper {
+      font-size: 12px;
+      color: #6b7280;
+      margin-top: 6px;
+      line-height: 1.5;
+    }
+
+    .warning {
+      font-size: 12px;
+      color: #b91c1c;
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      border-radius: 10px;
+      padding: 10px;
+      line-height: 1.5;
+      margin-top: 10px;
+    }
+
+    footer {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      border-top: 1px solid #e5e7eb;
+      background: #ffffff;
+      text-align: center;
+      font-size: 12px;
+      color: #6b7280;
+      padding: 10px 8px;
+    }
+  </style>
+</head>
+<body>
+  <main class="mobile-frame">
+    <div class="banner">ECPay Payment</div>
+
+    <section id="payment-info" class="page active">
+      <div class="content">
+        <div class="store-name">綠界測試商店</div>
+
+        <div class="field">
+          <label class="label" for="amountInput">訂單金額（NTD）</label>
+          <input id="amountInput" type="text" inputmode="numeric" placeholder="請輸入金額">
+          <div id="amountPreview" class="helper">顯示金額：NT$ 0</div>
+        </div>
+
+        <div class="field">
+          <span class="label">刷卡方式</span>
+          <div class="radio-group">
+            <label class="radio-option"><input type="radio" name="cardPlan" value="一次付清" checked>一次付清</label>
+            <label class="radio-option"><input type="radio" name="cardPlan" value="分期">分期</label>
+            <label class="radio-option"><input type="radio" name="cardPlan" value="永豐 30 期">永豐 30 期</label>
+            <label class="radio-option"><input type="radio" name="cardPlan" value="紅利折抵">紅利折抵</label>
+            <label class="radio-option"><input type="radio" name="cardPlan" value="定期定額">定期定額</label>
+            <label class="radio-option"><input type="radio" name="cardPlan" value="消費者自費分期">消費者自費分期</label>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label" for="remarkInput">備註欄位</label>
+          <textarea id="remarkInput" placeholder="可填寫發票抬頭、送達時間或其他說明"></textarea>
+        </div>
+      </div>
+
+      <div class="bottom-action">
+        <button id="nextBtn" type="button">下一步</button>
+      </div>
+    </section>
+
+    <section id="credit-card" class="page">
+      <div class="content">
+        <div class="store-name">綠界測試商店</div>
+
+        <div class="order-card">
+          <div class="order-item"><span>訂單編號</span><span id="summaryOrderNo">ORD20260418001</span></div>
+          <div class="order-item"><span>訂單金額</span><span id="summaryAmount">NT$ 0</span></div>
+          <div class="order-item"><span>刷卡方式</span><span id="summaryPlan">一次付清</span></div>
+        </div>
+
+        <div class="field">
+          <span class="label">信用卡類型</span>
+          <div class="radio-group">
+            <label class="radio-option"><input type="radio" name="cardType" value="Visa / Mastercard / JCB" checked>Visa / Mastercard / JCB</label>
+            <label class="radio-option"><input type="radio" name="cardType" value="銀聯卡">銀聯卡</label>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label" for="cardNumber">信用卡卡號</label>
+          <input id="cardNumber" type="text" inputmode="numeric" maxlength="19" placeholder="0000 0000 0000 0000">
+        </div>
+
+        <div class="field">
+          <label class="label" for="expiry">有效期限（MM/YY）</label>
+          <input id="expiry" type="text" inputmode="numeric" maxlength="5" placeholder="MM/YY">
+        </div>
+
+        <div class="field">
+          <label class="label" for="cvv">背面末三碼（CVV）</label>
+          <input id="cvv" type="password" inputmode="numeric" maxlength="3" placeholder="***">
+        </div>
+
+        <div class="field">
+          <label class="label" for="cardHolder">持卡人姓名</label>
+          <input id="cardHolder" type="text" placeholder="請輸入姓名">
+        </div>
+
+        <div class="field">
+          <label class="label" for="mobile">手機號碼</label>
+          <input id="mobile" type="tel" inputmode="numeric" placeholder="09xxxxxxxx">
+        </div>
+
+        <div class="field">
+          <label class="label" for="email">電子信箱</label>
+          <input id="email" type="email" placeholder="example@email.com">
+        </div>
+
+        <div class="field">
+          <label class="label" for="billingAddress">帳單地址</label>
+          <input id="billingAddress" type="text" placeholder="請輸入帳單地址">
+        </div>
+
+        <div class="warning">
+          ⚠️ 綠界科技不承作投資、賭博、虛擬貨幣等交易代理收付，勿聽從他人指示付款，有疑慮請撥打 165 或 110。
+        </div>
+      </div>
+
+      <div class="bottom-action">
+        <button id="confirmBtn" type="button">確認付款</button>
+      </div>
+    </section>
+
+    <footer>© 2026 ECPay Co., Ltd. All Rights Reserved.</footer>
+  </main>
+
+  <script>
+    const paymentInfoPage = document.getElementById("payment-info");
+    const creditCardPage = document.getElementById("credit-card");
+    const amountInput = document.getElementById("amountInput");
+    const amountPreview = document.getElementById("amountPreview");
+    const summaryAmount = document.getElementById("summaryAmount");
+    const summaryPlan = document.getElementById("summaryPlan");
+    const nextBtn = document.getElementById("nextBtn");
+    const confirmBtn = document.getElementById("confirmBtn");
+    const cardNumberInput = document.getElementById("cardNumber");
+    const expiryInput = document.getElementById("expiry");
+    const cvvInput = document.getElementById("cvv");
+
+    function formatCurrency(value) {
+      const number = Number(value) || 0;
+      return "NT$ " + number.toLocaleString("zh-TW");
+    }
+
+    function getNumericValue(text) {
+      return text.replace(/\D/g, "");
+    }
+
+    amountInput.addEventListener("input", function () {
+      const raw = getNumericValue(amountInput.value);
+      amountInput.value = raw;
+      amountPreview.textContent = "顯示金額：" + formatCurrency(raw);
+    });
+
+    nextBtn.addEventListener("click", function () {
+      const amount = getNumericValue(amountInput.value);
+      if (!amount || Number(amount) <= 0) {
+        window.alert("請先輸入正確的訂單金額");
+        return;
+      }
+
+      const selectedPlan = document.querySelector("input[name='cardPlan']:checked");
+      summaryAmount.textContent = formatCurrency(amount);
+      summaryPlan.textContent = selectedPlan ? selectedPlan.value : "一次付清";
+
+      paymentInfoPage.classList.remove("active");
+      creditCardPage.classList.add("active");
+      window.scrollTo(0, 0);
+    });
+
+    cardNumberInput.addEventListener("input", function () {
+      const digits = getNumericValue(cardNumberInput.value).slice(0, 16);
+      cardNumberInput.value = digits.replace(/(\d{4})(?=\d)/g, "$1 ");
+    });
+
+    expiryInput.addEventListener("input", function () {
+      const digits = getNumericValue(expiryInput.value).slice(0, 4);
+      if (digits.length <= 2) {
+        expiryInput.value = digits;
+      } else {
+        expiryInput.value = digits.slice(0, 2) + "/" + digits.slice(2);
+      }
+    });
+
+    cvvInput.addEventListener("input", function () {
+      cvvInput.value = getNumericValue(cvvInput.value).slice(0, 3);
+    });
+
+    confirmBtn.addEventListener("click", function () {
+      window.alert("付款資料已送出（Prototype 示意）");
+    });
+  </script>
+</body>
+</html>
